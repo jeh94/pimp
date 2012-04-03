@@ -1,4 +1,10 @@
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -6,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -30,6 +38,7 @@ public class ReflectionFun {
 	 */
 	public static void main(String[] args) {
 
+		/***
 		List<String> classes = null;
 		try {
 			classes = read("src/productdefs.txt");
@@ -39,41 +48,34 @@ public class ReflectionFun {
 			e.printStackTrace();
 			return;
 		}
+		***/
 
-		JFrame inter = new JFrame();
-		JTabbedPane tabbedPane = new JTabbedPane();
-		
-		for (String className : classes) {
-			try {
-				Class<?> c = Class.forName(className);
-				System.out.println("Class: " + c.getCanonicalName());
-				
-				Package p = c.getPackage();
-				System.out.println("Package: "
-						+ (p != null ? p.getName() : "-- No Package --"));
+		JFrame mainInterface = new JFrame();
+		FormBuilder fb = new FormBuilder(TestClass.class);
 
-				printMembers(c.getConstructors(), "Constuctors");
-				printMembers(c.getDeclaredFields(), "Fields");
-				printMembers(c.getMethods(), "Methods");
-				printClasses(c);
-				
-				GUIBuilder gb = new GUIBuilder();
-				JPanel fields = gb.createGUI(c.getDeclaredFields());
-
-				tabbedPane.addTab(className, fields);
-				
-
-				// production code should handle these exceptions more
-				// gracefully
-			} catch (ClassNotFoundException x) {
-				x.printStackTrace();
+		@SuppressWarnings("deprecation")
+		TestClass tc1 = new TestClass(10, 12.0, "PIMP", new Date(2012, 4, 3), Color.BLUE);
+		try {
+			JPanel showObjectArea = (JPanel) fb.fillForm(tc1);
+			for(Component jc : showObjectArea.getComponents()){
+				if(jc instanceof JTextField){
+					System.out.println(jc.toString());
+					System.out.println(((JTextField) jc).getText());
+				}
+					
 			}
+			mainInterface.add(showObjectArea);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		inter.add(tabbedPane);
-		
-		inter.pack();
-		inter.setVisible(true);
+
+
+		mainInterface.pack();
+		mainInterface.setVisible(true);
 	}
 
 	private static void printMembers(Member[] mbrs, String s) {
